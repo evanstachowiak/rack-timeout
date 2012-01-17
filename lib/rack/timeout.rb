@@ -4,8 +4,9 @@ SystemTimer ||= Timeout
 module Rack
   class Timeout
     @timeout = 15
+    @timeout_block = nil
     class << self
-      attr_accessor :timeout
+      attr_accessor :timeout, :timeout_block
     end
 
     def initialize(app)
@@ -13,6 +14,7 @@ module Rack
     end
 
     def call(env)
+      @timeout_block.call if @timeout_block
       SystemTimer.timeout(self.class.timeout, ::Timeout::Error) { @app.call(env) }
     end
 
